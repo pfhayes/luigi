@@ -35,62 +35,78 @@ var LuigiAPI = (function() {
         });
     }
 
+    function searchTerm() {
+        // FIXME : leaky API.  This shouldn't rely on the DOM.
+        if ($('#serverSideCheckbox')[0].checked) {
+            return $('#taskTable_filter').find('input').val();
+        }
+        else {
+            return '';
+        }
+    }
+
     LuigiAPI.prototype.getDependencyGraph = function (taskId, callback) {
-        jsonRPC(this.urlRoot + "/dep_graph", {task_id: taskId}, function(response) {
+        return jsonRPC(this.urlRoot + "/dep_graph", {task_id: taskId}, function(response) {
             callback(flatten(response.response, taskId));
         });
     };
 
     LuigiAPI.prototype.getInverseDependencyGraph = function (taskId, callback) {
-        jsonRPC(this.urlRoot + "/inverse_dep_graph", {task_id: taskId}, function(response) {
+        return jsonRPC(this.urlRoot + "/inverse_dep_graph", {task_id: taskId}, function(response) {
             callback(flatten(response.response, taskId));
         });
     }
 
     LuigiAPI.prototype.getFailedTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "FAILED", upstream_status: ""}, function(response) {
+        return jsonRPC(this.urlRoot + "/task_list", {status: "FAILED", upstream_status: "", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };
 
     LuigiAPI.prototype.getUpstreamFailedTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "PENDING", upstream_status: "UPSTREAM_FAILED"}, function(response) {
+        return jsonRPC(this.urlRoot + "/task_list", {status: "PENDING", upstream_status: "UPSTREAM_FAILED", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };
 
     LuigiAPI.prototype.getDoneTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "DONE", upstream_status: ""}, function(response) {
+        return jsonRPC(this.urlRoot + "/task_list", {status: "DONE", upstream_status: "", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };
 
+    LuigiAPI.prototype.reEnable = function(taskId, callback) {
+        return jsonRPC(this.urlRoot + "/re_enable_task", {task_id: taskId}, function(response) {
+            callback(response.response);
+        });
+    };
+
     LuigiAPI.prototype.getErrorTrace = function(taskId, callback) {
-        jsonRPC(this.urlRoot + "/fetch_error", {task_id: taskId}, function(response) {
+        return jsonRPC(this.urlRoot + "/fetch_error", {task_id: taskId}, function(response) {
             callback(response.response);
         });
     };
 
     LuigiAPI.prototype.getRunningTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "RUNNING", upstream_status: ""}, function(response) {
+        return jsonRPC(this.urlRoot + "/task_list", {status: "RUNNING", upstream_status: "", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };
 
     LuigiAPI.prototype.getPendingTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "PENDING", upstream_status: ""}, function(response) {
+        return jsonRPC(this.urlRoot + "/task_list", {status: "PENDING", upstream_status: "", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };
 
     LuigiAPI.prototype.getDisabledTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "DISABLED", upstream_status: ""}, function(response) {
+        jsonRPC(this.urlRoot + "/task_list", {status: "DISABLED", upstream_status: "", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };
 
     LuigiAPI.prototype.getUpstreamDisabledTaskList = function(callback) {
-        jsonRPC(this.urlRoot + "/task_list", {status: "PENDING", upstream_status: "UPSTREAM_DISABLED"}, function(response) {
+        jsonRPC(this.urlRoot + "/task_list", {status: "PENDING", upstream_status: "UPSTREAM_DISABLED", search: searchTerm()}, function(response) {
             callback(flatten(response.response));
         });
     };

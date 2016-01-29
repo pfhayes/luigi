@@ -13,68 +13,78 @@
 # the License.
 
 import os
-import sys
 
-try:
-    from setuptools import setup
-    from setuptools.command.test import test as TestCommand
-except:
-    from distutils.core import setup
-    from distutils.cmd import Command as TestCommand
-
-
-class Tox(TestCommand):
-    user_options = [('tox-args=', None, "Arguments to pass to tox")]
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.tox_args = ''
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-    def run_tests(self):
-        #import here, cause outside the eggs aren't loaded
-        import tox
-        errno = tox.cmdline(args=self.tox_args.split())
-        sys.exit(errno)
+from setuptools import setup
 
 
 def get_static_files(path):
-    return [os.path.join(dirpath.replace("luigi/", ""), ext) 
+    return [os.path.join(dirpath.replace("luigi/", ""), ext)
             for (dirpath, dirnames, filenames) in os.walk(path)
-            for ext in ["*.html", "*.js", "*.css", "*.png"]]
+            for ext in ["*.html", "*.js", "*.css", "*.png",
+                        "*.eot", "*.svg", "*.ttf", "*.woff", "*.woff2"]]
 
 
 luigi_package_data = sum(map(get_static_files, ["luigi/static", "luigi/templates"]), [])
 
+readme_note = """\
+.. note::
 
-long_description = ['Note: For the latest source, discussion, etc, please visit the `Github repository <https://github.com/spotify/luigi>`_\n\n']
-for line in open('README.rst'):
-    long_description.append(line)
-long_description = ''.join(long_description)
+   For the latest source, discussion, etc, please visit the
+   `GitHub repository <https://github.com/spotify/luigi>`_\n\n
+"""
 
+with open('README.rst') as fobj:
+    long_description = readme_note + fobj.read()
+
+install_requires = [
+    'tornado>=4.0,<5',
+    'python-daemon<3.0',
+]
+
+if os.environ.get('READTHEDOCS', None) == 'True':
+    # So that we can build documentation for luigi.db_task_history and luigi.contrib.sqla
+    install_requires.append('sqlalchemy')
+    # readthedocs don't like python-daemon, see #1342
+    install_requires.remove('python-daemon<3.0')
 
 setup(
     name='luigi',
-    version='1.0.19',
+    version='2.0.1',
     description='Workflow mgmgt + task scheduling + dependency resolution',
     long_description=long_description,
     author='Erik Bernhardsson',
-    author_email='erikbern@spotify.com',
     url='https://github.com/spotify/luigi',
     license='Apache License 2.0',
     packages=[
         'luigi',
         'luigi.contrib',
+        'luigi.contrib.hdfs',
         'luigi.tools'
     ],
     package_data={
         'luigi': luigi_package_data
     },
-    scripts=[
-        'bin/luigid',
-        'bin/luigi'
+    entry_points={
+        'console_scripts': [
+            'luigi = luigi.cmdline:luigi_run',
+            'luigid = luigi.cmdline:luigid',
+            'luigi-grep = luigi.tools.luigi_grep:main',
+            'luigi-deps = luigi.tools.deps:main',
+            'luigi-migrate = luigi.tools.migrate:main'
+        ]
+    },
+    install_requires=install_requires,
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: System :: Monitoring',
     ],
-    tests_require=['tox', 'virtualenv'],
-    cmdclass={'test': Tox},
 )

@@ -1,54 +1,62 @@
-"""Package containing core luigi functionality"""
-# Copyright (c) 2012 Spotify AB
+# -*- coding: utf-8 -*-
 #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not
-# use this file except in compliance with the License. You may obtain a copy of
-# the License at
+# Copyright 2012-2015 Spotify AB
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
 # http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations under
-# the License.
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""
+Package containing core luigi functionality.
+"""
 
-import task
-import file  # wtf @ naming
-import rpc
-import parameter
-import configuration
-import interface
-import target
-import event
+from luigi import task
+from luigi.task import Task, Config, ExternalTask, WrapperTask, namespace
 
-Event = event.Event
+from luigi import target
+from luigi.target import Target
 
-Task = task.Task
-ExternalTask = task.ExternalTask
-WrapperTask = task.WrapperTask
-Target = target.Target
+from luigi import file  # wtf @ naming
+from luigi.file import File, LocalTarget
 
-File = file.File  # TODO: remove, should be LocalTarget
-LocalTarget = File
-Parameter = parameter.Parameter
-RemoteScheduler = rpc.RemoteScheduler
-RPCError = rpc.RPCError
+from luigi import rpc
+from luigi.rpc import RemoteScheduler, RPCError
 
-expose = interface.expose
-expose_main = interface.expose_main
-run = interface.run
-build = interface.build
+from luigi import parameter
+from luigi.parameter import (
+    Parameter,
+    DateParameter, MonthParameter, YearParameter, DateHourParameter, DateMinuteParameter,
+    DateIntervalParameter, TimeDeltaParameter,
+    IntParameter, FloatParameter, BooleanParameter, BoolParameter,
+    TaskParameter, EnumParameter
+)
 
-# TODO: how can we get rid of these?
-DateHourParameter = parameter.DateHourParameter
-DateParameter = parameter.DateParameter
-IntParameter = parameter.IntParameter
-FloatParameter = parameter.FloatParameter
-BooleanParameter = parameter.BooleanParameter
-DateIntervalParameter = parameter.DateIntervalParameter
-TimeDeltaParameter = parameter.TimeDeltaParameter
+from luigi import configuration
 
-namespace = task.namespace
+from luigi import interface
+from luigi.interface import run, build
 
-import tools.range  # just makes the tool classes available from command line
+from luigi import event
+from luigi.event import Event
+
+from .tools import range  # just makes the tool classes available from command line
+
+
+__all__ = [
+    'task', 'Task', 'Config', 'ExternalTask', 'WrapperTask', 'namespace',
+    'target', 'Target', 'File', 'LocalTarget', 'rpc', 'RemoteScheduler',
+    'RPCError', 'parameter', 'Parameter', 'DateParameter', 'MonthParameter',
+    'YearParameter', 'DateHourParameter', 'DateMinuteParameter', 'range',
+    'DateIntervalParameter', 'TimeDeltaParameter', 'IntParameter',
+    'FloatParameter', 'BooleanParameter', 'BoolParameter', 'TaskParameter',
+    'EnumParameter', 'configuration', 'interface', 'file', 'run', 'build',
+    'event', 'Event'
+]
